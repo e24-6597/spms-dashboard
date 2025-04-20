@@ -3,58 +3,103 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SPMS Dashboard</title>
+  <title>Smart Passenger Dashboard</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
       text-align: center;
-      background-color: #f0f4f8;
-      padding: 30px;
+      margin: 0;
+      padding: 20px;
     }
-    .card {
-      background: white;
+
+    .header {
+      background-color: #ffffff;
       border-radius: 10px;
-      padding: 30px;
-      margin: 20px auto;
+      padding: 20px;
+      margin-bottom: 30px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      max-width: 600px;
     }
-    h1 {
-      margin-bottom: 5px;
+
+    .header img {
+      width: 100px;
+      margin-bottom: 10px;
     }
-    h2 {
-      font-size: 1.5em;
+
+    .header h1 {
+      margin: 5px 0;
+      font-size: 22px;
+      color: #333;
+    }
+
+    .header h2 {
+      font-size: 18px;
+      color: #555;
+      margin: 5px 0;
+    }
+
+    .card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin: 0 auto;
+      max-width: 500px;
+    }
+
+    h3 {
       color: #007bff;
+      font-size: 24px;
     }
-    ul {
-      list-style-type: none;
-      padding: 0;
+
+    .logs {
+      margin-top: 30px;
       text-align: left;
-      max-height: 300px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .logs h4 {
+      margin-top: 20px;
+      color: #444;
+    }
+
+    ul {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      max-height: 200px;
       overflow-y: auto;
     }
-    li {
-      padding: 4px 0;
-      border-bottom: 1px solid #eee;
+
+    ul li {
+      font-size: 14px;
+      margin: 4px 0;
     }
   </style>
 </head>
 <body>
 
-  <h1>🚌 SPMS Dashboard</h1>
-
-  <div class="card">
-    <h2>Onboard Passenger Count: <span id="passengerCount">Loading...</span></h2>
+  <div class="header">
+    <img src="https://upload.wikimedia.org/wikipedia/en/6/6a/MSEUF_Crest.png" alt="Enverga University Logo" />
+    <h1>Manuel S. Enverga University Foundation</h1>
+    <h2>Bachelor of Science Major in Electronics Engineering</h2>
+    <h2>Thesis Advisor: Engr. Ronaldo C. Maaño</h2>
+    <h2>Programmed by: Joseph G. Demata / E24-6597</h2>
   </div>
 
   <div class="card">
-    <h2>🟢 Entry Log (Last 200)</h2>
-    <ul id="entryLog"></ul>
+    <h3>Current Passenger Onboard: <span id="passengerCount">Loading...</span></h3>
   </div>
 
-  <div class="card">
-    <h2>🔴 Exit Log (Last 200)</h2>
-    <ul id="exitLog"></ul>
+  <div class="logs">
+    <h4>🟢 Entry Log</h4>
+    <ul id="entryLog">Loading...</ul>
+
+    <h4>🔴 Exit Log</h4>
+    <ul id="exitLog">Loading...</ul>
   </div>
 
   <script type="module">
@@ -66,7 +111,7 @@
       authDomain: "spms-c06cd.firebaseapp.com",
       databaseURL: "https://spms-c06cd-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "spms-c06cd",
-      storageBucket: "spms-c06cd.appspot.com",
+      storageBucket: "spms-c06cd.firebasestorage.app",
       messagingSenderId: "458699496733",
       appId: "1:458699496733:web:d5622bbb70947c818e95f4"
     };
@@ -74,42 +119,47 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const passengerRef = ref(db, "passenger_count");
-    const entryLogRef = ref(db, "logs/entry");
-    const exitLogRef = ref(db, "logs/exit");
-
-    const passengerCountSpan = document.getElementById("passengerCount");
-    const entryLogUl = document.getElementById("entryLog");
-    const exitLogUl = document.getElementById("exitLog");
-
-    onValue(passengerRef, (snapshot) => {
-      passengerCountSpan.innerText = snapshot.val() ?? 0;
+    // Update Passenger Count
+    const countRef = ref(db, "passenger_count");
+    onValue(countRef, (snapshot) => {
+      document.getElementById("passengerCount").innerText = snapshot.val() ?? 0;
     });
 
-    onValue(entryLogRef, (snapshot) => {
+    // Update Entry Logs
+    const entryRef = ref(db, "logs/entry");
+    onValue(entryRef, (snapshot) => {
+      const list = document.getElementById("entryLog");
+      list.innerHTML = "";
       const logs = snapshot.val();
-      entryLogUl.innerHTML = "";
       if (logs) {
-        Object.values(logs).slice(-200).reverse().forEach(entry => {
+        const sorted = Object.values(logs).slice(-200);
+        sorted.reverse().forEach(item => {
           const li = document.createElement("li");
-          li.textContent = entry;
-          entryLogUl.appendChild(li);
+          li.textContent = item;
+          list.appendChild(li);
         });
+      } else {
+        list.innerHTML = "<li>No entries yet.</li>";
       }
     });
 
-    onValue(exitLogRef, (snapshot) => {
+    // Update Exit Logs
+    const exitRef = ref(db, "logs/exit");
+    onValue(exitRef, (snapshot) => {
+      const list = document.getElementById("exitLog");
+      list.innerHTML = "";
       const logs = snapshot.val();
-      exitLogUl.innerHTML = "";
       if (logs) {
-        Object.values(logs).slice(-200).reverse().forEach(exit => {
+        const sorted = Object.values(logs).slice(-200);
+        sorted.reverse().forEach(item => {
           const li = document.createElement("li");
-          li.textContent = exit;
-          exitLogUl.appendChild(li);
+          li.textContent = item;
+          list.appendChild(li);
         });
+      } else {
+        list.innerHTML = "<li>No exits yet.</li>";
       }
     });
   </script>
-
 </body>
 </html>
