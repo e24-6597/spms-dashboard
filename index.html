@@ -7,49 +7,54 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f4f8;
       text-align: center;
+      background-color: #f0f4f8;
       padding: 30px;
-    }
-    h1 {
-      color: #222;
     }
     .card {
       background: white;
       border-radius: 10px;
       padding: 30px;
       margin: 20px auto;
-      max-width: 500px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      max-width: 600px;
     }
-    .log-box {
-      max-height: 200px;
-      overflow-y: auto;
+    h1 {
+      margin-bottom: 5px;
+    }
+    h2 {
+      font-size: 1.5em;
+      color: #007bff;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
       text-align: left;
-      margin-top: 10px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      font-size: 14px;
-      background: #fefefe;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    li {
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
     }
   </style>
 </head>
 <body>
+
   <h1>🚌 Smart Passenger Dashboard</h1>
-  
+
   <div class="card">
-    <h2>Current Passenger Onboard</h2>
-    <h2 style="color: green;" id="count">Loading...</h2>
+    <h2>Current Passenger Onboard: <span id="passengerCount">Loading...</span></h2>
   </div>
 
   <div class="card">
-    <h3>Entry Log (Last 200)</h3>
-    <div class="log-box" id="entryLog">Loading...</div>
+    <h2>🟢 Entry Log (Last 200)</h2>
+    <ul id="entryLog"></ul>
   </div>
 
   <div class="card">
-    <h3>Exit Log (Last 200)</h3>
-    <div class="log-box" id="exitLog">Loading...</div>
+    <h2>🔴 Exit Log (Last 200)</h2>
+    <ul id="exitLog"></ul>
   </div>
 
   <script type="module">
@@ -61,7 +66,7 @@
       authDomain: "spms-c06cd.firebaseapp.com",
       databaseURL: "https://spms-c06cd-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "spms-c06cd",
-      storageBucket: "spms-c06cd.firebasestorage.app",
+      storageBucket: "spms-c06cd.appspot.com",
       messagingSenderId: "458699496733",
       appId: "1:458699496733:web:d5622bbb70947c818e95f4"
     };
@@ -69,24 +74,42 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Live Passenger Count
-    onValue(ref(db, "passenger_count"), (snap) => {
-      document.getElementById("count").innerText = snap.val() ?? 0;
+    const passengerRef = ref(db, "passenger_count");
+    const entryLogRef = ref(db, "logs/entry");
+    const exitLogRef = ref(db, "logs/exit");
+
+    const passengerCountSpan = document.getElementById("passengerCount");
+    const entryLogUl = document.getElementById("entryLog");
+    const exitLogUl = document.getElementById("exitLog");
+
+    onValue(passengerRef, (snapshot) => {
+      passengerCountSpan.innerText = snapshot.val() ?? 0;
     });
 
-    // Entry Log
-    onValue(ref(db, "logs/entry"), (snap) => {
-      const log = snap.val() || {};
-      const list = Object.values(log).slice(-200).reverse();
-      document.getElementById("entryLog").innerHTML = list.map(ts => `<div>🟢 ${ts}</div>`).join("");
+    onValue(entryLogRef, (snapshot) => {
+      const logs = snapshot.val();
+      entryLogUl.innerHTML = "";
+      if (logs) {
+        Object.values(logs).slice(-200).reverse().forEach(entry => {
+          const li = document.createElement("li");
+          li.textContent = entry;
+          entryLogUl.appendChild(li);
+        });
+      }
     });
 
-    // Exit Log
-    onValue(ref(db, "logs/exit"), (snap) => {
-      const log = snap.val() || {};
-      const list = Object.values(log).slice(-200).reverse();
-      document.getElementById("exitLog").innerHTML = list.map(ts => `<div>🔴 ${ts}</div>`).join("");
+    onValue(exitLogRef, (snapshot) => {
+      const logs = snapshot.val();
+      exitLogUl.innerHTML = "";
+      if (logs) {
+        Object.values(logs).slice(-200).reverse().forEach(exit => {
+          const li = document.createElement("li");
+          li.textContent = exit;
+          exitLogUl.appendChild(li);
+        });
+      }
     });
   </script>
+
 </body>
 </html>
