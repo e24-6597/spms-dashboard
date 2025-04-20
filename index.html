@@ -1,43 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Passenger Dashboard</title>
   <style>
     body {
-      margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #f9f9f9, #e0f7fa);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f4f8;
+      padding: 50px;
+    }
+    h1 {
       color: #333;
     }
-    .card {
-      background-color: white;
-      padding: 2rem 3rem;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-    .card h1 {
-      margin-bottom: 1rem;
-    }
-    .count {
-      font-size: 4rem;
-      font-weight: bold;
+    h2 {
+      font-size: 2.5em;
       color: #007bff;
+    }
+    .card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      padding: 40px;
+      margin-top: 40px;
+    }
+    .log {
+      text-align: left;
+      margin-top: 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .log h3 {
+      margin-bottom: 10px;
+    }
+    .log ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    .log li {
+      padding: 5px 0;
+      border-bottom: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
+  <h1>🚌 Smart Passenger Dashboard</h1>
   <div class="card">
-    <h1>🚌 Smart Passenger Dashboard</h1>
-    <p>Onboard Count:</p>
-    <div class="count" id="passengerCount">Loading...</div>
+    <h2>Current Passenger Onboard: <span id="passengerCount">Loading...</span></h2>
+    <h3>Total Boarded: <span id="totalBoarded">Loading...</span></h3>
+  </div>
+
+  <div class="log">
+    <h3>Entry Log</h3>
+    <ul id="entryLog"></ul>
+
+    <h3>Exit Log</h3>
+    <ul id="exitLog"></ul>
   </div>
 
   <script type="module">
@@ -56,11 +77,44 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
     const countRef = ref(db, "passenger_count");
+    const totalRef = ref(db, "total_boarded");
+    const entryRef = ref(db, "entry_log");
+    const exitRef = ref(db, "exit_log");
 
     onValue(countRef, (snapshot) => {
-      const count = snapshot.val();
-      document.getElementById("passengerCount").innerText = count !== null ? count : "0";
+      document.getElementById("passengerCount").innerText = snapshot.val();
+    });
+
+    onValue(totalRef, (snapshot) => {
+      document.getElementById("totalBoarded").innerText = snapshot.val();
+    });
+
+    onValue(entryRef, (snapshot) => {
+      const log = snapshot.val();
+      const list = document.getElementById("entryLog");
+      list.innerHTML = "";
+      if (log) {
+        Object.values(log).slice(-10).reverse().forEach(entry => {
+          const li = document.createElement("li");
+          li.innerText = entry;
+          list.appendChild(li);
+        });
+      }
+    });
+
+    onValue(exitRef, (snapshot) => {
+      const log = snapshot.val();
+      const list = document.getElementById("exitLog");
+      list.innerHTML = "";
+      if (log) {
+        Object.values(log).slice(-10).reverse().forEach(entry => {
+          const li = document.createElement("li");
+          li.innerText = entry;
+          list.appendChild(li);
+        });
+      }
     });
   </script>
 </body>
