@@ -52,7 +52,7 @@
       max-width: 500px;
       text-align: center;
     }
-    .log-container {
+    .logs-row {
       display: flex;
       justify-content: center;
       gap: 20px;
@@ -63,8 +63,7 @@
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
       padding: 20px;
-      width: 100%;
-      max-width: 45%;
+      width: 320px;
       font-size: 0.9em;
     }
     .log-box h3 {
@@ -84,11 +83,6 @@
     .log-box li {
       padding: 5px;
       border-bottom: 1px solid #ccc;
-    }
-    @media (max-width: 768px) {
-      .log-box {
-        max-width: 100%;
-      }
     }
   </style>
 </head>
@@ -110,7 +104,7 @@
     <h2><span style="font-size: 1.4em;">🚌</span> Current Passenger Onboard: <span id="passengerCount">Loading...</span></h2>
   </div>
 
-  <div class="log-container">
+  <div class="logs-row">
     <div class="log-box">
       <h3>🟩 Entry Log</h3>
       <ul id="entryLog"></ul>
