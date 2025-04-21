@@ -1,81 +1,159 @@
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #d6d6d6;
-    padding: 30px;
-    text-align: center;
-  }
-  .logo {
-    width: 120px;
-    margin-bottom: 15px;
-  }
-  .header {
-    margin-bottom: 30px;
-  }
-  .header h1, .header h2, .header h3 {
-    margin: 5px;
-  }
-  .card {
-    background-color: #e0e0e0;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    display: inline-block;
-    padding: 40px;
-    margin-top: 40px;
-    width: 90%;
-    max-width: 600px;
-  }
-  h2 {
-    font-size: 1.1em;
-    color: #007bff;
-    margin-bottom: 10px;
-  }
-  .log-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  .log-box {
-    flex: 1;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    padding: 10px;
-    overflow-y: auto;
-    max-height: 250px;
-    font-size: 0.9em;
-  }
-  .log-box h3 {
-    margin: 10px 0;
-    color: #333;
-  }
-  .log-box ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  .log-box li {
-    background-color: #f4f4f4;
-    padding: 6px 10px;
-    border-bottom: 1px solid #ccc;
-  }
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Passenger Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #d6d6d6;
+      padding: 30px;
+      text-align: center;
+    }
+    .logo {
+      width: 120px;
+      float: left;
+    }
+    .header-text {
+      text-align: left;
+      margin-left: 140px;
+    }
+    .header {
+      margin-bottom: 40px;
+      text-align: left;
+    }
+    .header h1 {
+      font-size: 1.2em;
+      margin: 5px 0;
+    }
+    .header h2 {
+      font-size: 1em;
+      color: black;
+      margin: 5px 0;
+    }
+    .header h3 {
+      font-size: 0.9em;
+      margin: 5px 0;
+    }
+    .card {
+      background-color: #e0e0e0;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      display: inline-block;
+      padding: 25px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 600px;
+    }
+    h2 {
+      font-size: 1.1em;
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+    .log-title {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: #f4f4f4;
+      border-radius: 8px;
+    }
+    li {
+      padding: 6px 10px;
+      border-bottom: 1px solid #ccc;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
 
-...
-
-<div class="card">
-  <h2><span style="font-size: 1.2em;">🚌</span> Current Passenger Onboard: <span id="passengerCount">Loading...</span></h2>
-
-  <div class="log-container">
-    <div class="log-box">
-      <h3>🟩 Entry Log</h3>
-      <ul id="entryLog"></ul>
+  <!-- Header Section -->
+  <div class="header">
+    <img src="mseuf.png" alt="Enverga University Logo" class="logo" />
+    <div class="header-text">
+      <h1>Manuel S. Enverga University Foundation</h1>
+      <h2>Bachelor of Science in Electronics Engineering</h2>
+      <h3>Thesis Advisor: Engr. Ronaldo C. Maaño</h3>
+      <h3>Programmed by: Joseph G. Demata / E24-6597</h3>
     </div>
-    <div class="log-box">
-      <h3>🟥 Exit Log</h3>
-      <ul id="exitLog"></ul>
-    </div>
+    <div style="clear: both;"></div>
   </div>
-</div>
+
+  <!-- Card 1: Current Count -->
+  <div class="card">
+    <h2><span style="font-size: 1.2em;">🚌</span> Current Passenger Onboard:</h2>
+    <h2 id="passengerCount">Loading...</h2>
+  </div>
+
+  <!-- Card 2: Entry Log -->
+  <div class="card">
+    <h3 class="log-title">🟩 Entry Log</h3>
+    <ul id="entryLog"></ul>
+  </div>
+
+  <!-- Card 3: Exit Log -->
+  <div class="card">
+    <h3 class="log-title">🟥 Exit Log</h3>
+    <ul id="exitLog"></ul>
+  </div>
+
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBUuD3kRrU1RZnWkStc529N9SZDnxf_oaw",
+      authDomain: "spms-c06cd.firebaseapp.com",
+      databaseURL: "https://spms-c06cd-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "spms-c06cd",
+      storageBucket: "spms-c06cd.firebasestorage.app",
+      messagingSenderId: "458699496733",
+      appId: "1:458699496733:web:d5622bbb70947c818e95f4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const passengerCount = document.getElementById("passengerCount");
+    const entryLog = document.getElementById("entryLog");
+    const exitLog = document.getElementById("exitLog");
+
+    onValue(ref(db, "passenger_count"), (snapshot) => {
+      passengerCount.innerText = snapshot.val() ?? "0";
+    });
+
+    onValue(ref(db, "logs/entry"), (snapshot) => {
+      const data = snapshot.val();
+      entryLog.innerHTML = "";
+      if (data) {
+        const logs = Object.values(data).slice(-200).reverse();
+        logs.forEach(log => {
+          const li = document.createElement("li");
+          li.textContent = log;
+          entryLog.appendChild(li);
+        });
+      }
+    });
+
+    onValue(ref(db, "logs/exit"), (snapshot) => {
+      const data = snapshot.val();
+      exitLog.innerHTML = "";
+      if (data) {
+        const logs = Object.values(data).slice(-200).reverse();
+        logs.forEach(log => {
+          const li = document.createElement("li");
+          li.textContent = log;
+          exitLog.appendChild(li);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
