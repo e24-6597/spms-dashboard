@@ -102,6 +102,7 @@
 
   <div class="center-card">
     <h2><span style="font-size: 1.4em;">🚌</span> Current Passenger Onboard: <span id="passengerCount">Loading...</span></h2>
+    <h2>Total Passenger Boarded Today: <span id="dailyTotal">Loading...</span></h2>
   </div>
 
   <div class="logs-row">
@@ -137,12 +138,20 @@
     const entryRef = ref(db, "logs/entry");
     const exitRef = ref(db, "logs/exit");
 
+    const today = new Date().toISOString().split("T")[0];
+    const dailyTotalRef = ref(db, `daily_totals/${today}`);
+
     const passengerCount = document.getElementById("passengerCount");
+    const dailyTotal = document.getElementById("dailyTotal");
     const entryLog = document.getElementById("entryLog");
     const exitLog = document.getElementById("exitLog");
 
     onValue(countRef, (snapshot) => {
       passengerCount.innerText = snapshot.val() ?? "0";
+    });
+
+    onValue(dailyTotalRef, (snapshot) => {
+      dailyTotal.innerText = snapshot.val() ?? "0";
     });
 
     onValue(entryRef, (snapshot) => {
