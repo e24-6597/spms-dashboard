@@ -69,6 +69,20 @@
       border-bottom: 1px solid #ccc;
       font-size: 0.9em;
     }
+    .log-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .log-box {
+      background-color: #e0e0e0;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      width: 90%;
+      max-width: 280px;
+    }
   </style>
 </head>
 <body>
@@ -85,25 +99,26 @@
     <div style="clear: both;"></div>
   </div>
 
-  <!-- Card 1: Current Count -->
+  <!-- Current Passenger Card -->
   <div class="card">
     <h2><span style="font-size: 1.2em;">🚌</span> Current Passenger Onboard:</h2>
     <h2 id="passengerCount">Loading...</h2>
   </div>
 
-  <!-- Card 2: Entry Log -->
-  <div class="card">
-    <h3 class="log-title">🟩 Entry Log</h3>
-    <ul id="entryLog"></ul>
+  <!-- Entry & Exit Logs -->
+  <div class="log-container">
+    <div class="log-box">
+      <h3 class="log-title">🟩 Entry Log</h3>
+      <ul id="entryLog"></ul>
+    </div>
+
+    <div class="log-box">
+      <h3 class="log-title">🟥 Exit Log</h3>
+      <ul id="exitLog"></ul>
+    </div>
   </div>
 
-  <!-- Card 3: Exit Log -->
-  <div class="card">
-    <h3 class="log-title">🟥 Exit Log</h3>
-    <ul id="exitLog"></ul>
-  </div>
-
-  <!-- Firebase Integration -->
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
@@ -155,5 +170,6 @@
       }
     });
   </script>
+
 </body>
 </html>
