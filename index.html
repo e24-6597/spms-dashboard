@@ -42,15 +42,24 @@
       border: none;
       border-top: 2px solid #888;
     }
-    .center-card {
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .stat-box {
       background-color: #e0e0e0;
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
       padding: 30px;
-      margin: 0 auto 30px;
-      width: 90%;
-      max-width: 500px;
+      width: 300px;
       text-align: center;
+    }
+    .stat-box h2 {
+      font-size: 1.2em;
+      color: #007bff;
     }
     .logs-row {
       display: flex;
@@ -100,9 +109,16 @@
 
   <hr />
 
-  <div class="center-card">
-    <h2><span style="font-size: 1.4em;">🚌</span> Current Passenger Onboard: <span id="passengerCount">Loading...</span></h2>
-    <h2>Total Passenger Boarded Today: <span id="dailyTotal">Loading...</span></h2>
+  <div class="stats-row">
+    <div class="stat-box">
+      <h2>🚌 Current Passenger Onboard:</h2>
+      <h2 id="passengerCount">Loading...</h2>
+    </div>
+
+    <div class="stat-box">
+      <h2>📆 Total Passenger Today:</h2>
+      <h2 id="dailyTotal">Loading...</h2>
+    </div>
   </div>
 
   <div class="logs-row">
