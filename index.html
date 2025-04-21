@@ -8,86 +8,92 @@
     body {
       font-family: Arial, sans-serif;
       background-color: #d6d6d6;
+      margin: 0;
       padding: 30px;
-      text-align: center;
+    }
+    .header {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
     }
     .logo {
       width: 120px;
-      float: left;
+      height: auto;
     }
     .header-text {
-      text-align: left;
-      margin-left: 140px;
+      margin-left: 20px;
+      margin-top: 20px;
     }
-    .header {
-      margin-bottom: 40px;
-      text-align: left;
-    }
-    .header h1 {
-      font-size: 1.2em;
+    .header-text h1 {
+      font-size: 1.5em;
       margin: 5px 0;
     }
-    .header h2 {
-      font-size: 1em;
+    .header-text h2 {
+      font-size: 1.1em;
+      margin: 5px 0;
       color: black;
+    }
+    .header-text h3 {
+      font-size: 1em;
       margin: 5px 0;
     }
-    .header h3 {
-      font-size: 0.9em;
-      margin: 5px 0;
+    hr {
+      margin: 25px 0;
+      border: none;
+      border-top: 2px solid #888;
     }
-    .card {
+    .center-card {
       background-color: #e0e0e0;
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-      display: inline-block;
-      padding: 25px;
-      margin: 20px auto;
+      padding: 30px;
+      margin: 0 auto 30px;
       width: 90%;
-      max-width: 600px;
-    }
-    h2 {
-      font-size: 1.1em;
-      color: #007bff;
-      margin-bottom: 10px;
-    }
-    .log-title {
-      color: #333;
-      margin-bottom: 10px;
-    }
-    ul {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-      max-height: 200px;
-      overflow-y: auto;
-      background-color: #f4f4f4;
-      border-radius: 8px;
-    }
-    li {
-      padding: 6px 10px;
-      border-bottom: 1px solid #ccc;
-      font-size: 0.9em;
+      max-width: 500px;
+      text-align: center;
     }
     .log-container {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      justify-content: space-between;
       gap: 20px;
+      flex-wrap: wrap;
     }
     .log-box {
       background-color: #e0e0e0;
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
       padding: 20px;
-      width: 90%;
-      max-width: 280px;
+      width: 100%;
+      max-width: 48%;
+      font-size: 0.9em;
+    }
+    .log-box h3 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+    }
+    .log-box ul {
+      list-style: none;
+      padding-left: 0;
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: #f4f4f4;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .log-box li {
+      padding: 5px;
+      border-bottom: 1px solid #ccc;
+    }
+    @media (max-width: 768px) {
+      .log-box {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header Section -->
   <div class="header">
     <img src="mseuf.png" alt="Enverga University Logo" class="logo" />
     <div class="header-text">
@@ -96,29 +102,26 @@
       <h3>Thesis Advisor: Engr. Ronaldo C. Maaño</h3>
       <h3>Programmed by: Joseph G. Demata / E24-6597</h3>
     </div>
-    <div style="clear: both;"></div>
   </div>
 
-  <!-- Current Passenger Card -->
-  <div class="card">
-    <h2><span style="font-size: 1.2em;">🚌</span> Current Passenger Onboard:</h2>
-    <h2 id="passengerCount">Loading...</h2>
+  <hr />
+
+  <div class="center-card">
+    <h2><span style="font-size: 1.6em;">🚌</span> Current Passenger Onboard: <span id="passengerCount">Loading...</span></h2>
   </div>
 
-  <!-- Entry & Exit Logs -->
   <div class="log-container">
     <div class="log-box">
-      <h3 class="log-title">🟩 Entry Log</h3>
+      <h3>🟩 Entry Log</h3>
       <ul id="entryLog"></ul>
     </div>
 
     <div class="log-box">
-      <h3 class="log-title">🟥 Exit Log</h3>
+      <h3>🟥 Exit Log</h3>
       <ul id="exitLog"></ul>
     </div>
   </div>
 
-  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
@@ -136,20 +139,24 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    const countRef = ref(db, "passenger_count");
+    const entryRef = ref(db, "logs/entry");
+    const exitRef = ref(db, "logs/exit");
+
     const passengerCount = document.getElementById("passengerCount");
     const entryLog = document.getElementById("entryLog");
     const exitLog = document.getElementById("exitLog");
 
-    onValue(ref(db, "passenger_count"), (snapshot) => {
+    onValue(countRef, (snapshot) => {
       passengerCount.innerText = snapshot.val() ?? "0";
     });
 
-    onValue(ref(db, "logs/entry"), (snapshot) => {
+    onValue(entryRef, (snapshot) => {
       const data = snapshot.val();
       entryLog.innerHTML = "";
       if (data) {
         const logs = Object.values(data).slice(-200).reverse();
-        logs.forEach(log => {
+        logs.forEach((log) => {
           const li = document.createElement("li");
           li.textContent = log;
           entryLog.appendChild(li);
@@ -157,12 +164,12 @@
       }
     });
 
-    onValue(ref(db, "logs/exit"), (snapshot) => {
+    onValue(exitRef, (snapshot) => {
       const data = snapshot.val();
       exitLog.innerHTML = "";
       if (data) {
         const logs = Object.values(data).slice(-200).reverse();
-        logs.forEach(log => {
+        logs.forEach((log) => {
           const li = document.createElement("li");
           li.textContent = log;
           exitLog.appendChild(li);
